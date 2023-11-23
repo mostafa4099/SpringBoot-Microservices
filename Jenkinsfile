@@ -15,36 +15,23 @@ pipeline {
                 script {
                     // Identify changed microservices
                     def changedMicroservices = findChangedMicroservices()
-                    echo "Building Docker image for ${changedMicroservices}"
 
                     // Build and deploy changed microservices
-                    for (microservice in changedMicroservices) {
-                        stage(microservice) {
-                            step {
+                    changedMicroservices.each { microservice ->
+                        stage("Build and Deploy ${microservice}") {
+                            steps {
                                 echo "Building Docker image for ${microservice}"
                                 sh "mvn clean install"
                                 def dockerImageTag = "${microservice}:${BUILD_NUMBER}"
 
                                 // Build Docker image
                                 sh "docker build -t ${dockerImageTag} -f ${microservice}/Dockerfile ."
-                                //buildDockerImage(image: dockerImageTag, dockerfile: "${microservice}/Dockerfile")
-                                //docker.build(dockerImageTag, "-f ${microservice}/Dockerfile .")
 
                                 // Remove previous container if it exists
-                                script {
-                                    def containerId = sh(script: "docker ps -q -f name=${microservice}", returnStdout: true).trim()
-                                    if (containerId) {
-                                        sh "docker rm -f ${containerId}"
-                                    }
-                                }
+                                sh "docker rm -f ${microservice}"
 
                                 // Remove previous image if it exists
-                                script {
-                                    def existingImageId = sh(script: "docker images -q ${dockerImageTag}", returnStdout: true).trim()
-                                    if (existingImageId) {
-                                        sh "docker rmi ${existingImageId}"
-                                    }
-                                }
+                                sh "docker rmi ${dockerImageTag}"
 
                                 // Tag Docker image
                                 sh "docker tag ${dockerImageTag} localhost:${getBasePort(microservice)}/${dockerImageTag}"
