@@ -29,4 +29,8 @@
 <!--			<scope>test</scope>-->
 <!--		</dependency>-->
 	</dependencies>
+
+	<build>
+		<finalName>ProductService</finalName>
+	</build>
 </project>
