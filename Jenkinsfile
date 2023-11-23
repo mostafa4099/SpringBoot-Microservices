@@ -33,15 +33,15 @@ pipeline {
             }
         }
     }
+}
 
-    def getBasePort(microservice) {
-        switch (microservice) {
-            case 'ApiGateway-Service': return 8181
-            case 'Discovery-Server': return 8182
-            case 'InventoryService': return 8183
-            case 'OrderService': return 8184
-            case 'ProductService': return 8185
-            // default: return 8080 // Add default port assignment if necessary
-        }
-    }
+def getBasePort(microservice) {
+  switch (microservice) {
+    case 'ApiGateway-Service': return 8181
+    case 'Discovery-Server': return 8182
+    case 'InventoryService': return 8183
+    case 'OrderService': return 8184
+    case 'ProductService': return 8185
+    // default: return 8080 // Add default port assignment if necessary
+  }
 }
