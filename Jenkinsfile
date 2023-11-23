@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     // Identify changed microservices
-                    changedMicroservices = findChanges(includePaths: '**/pom.xml')
+                    def changedMicroservices = findChangedMicroservices()
 
                     // Build and deploy changed microservices
                     for (microservice in changedMicroservices) {
@@ -54,6 +54,21 @@ pipeline {
             }
         }
     }
+}
+
+def findChangedMicroservices() {
+    def changedMicroservices = []
+    for (changeLogSet in currentBuild.changeSets) {
+        for (entry in changeLogSet.items) {
+            def affectedFiles = entry.affectedFiles.collect { it.path }
+            if (affectedFiles.any { it.endsWith('/pom.xml') }) {
+                // Assuming your microservices are structured in directories with a pom.xml file
+                def microserviceName = entry.path.tokenize('/')[0]
+                changedMicroservices.add(microserviceName)
+            }
+        }
+    }
+    return changedMicroservices.unique()
 }
 
 def getBasePort(microservice) {
