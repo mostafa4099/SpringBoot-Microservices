@@ -60,19 +60,26 @@ pipeline {
 
 def findChangedMicroservices() {
     def changedMicroservices = []
+    echo "Checking for changed microservices..."
+
     for (changeLogSet in currentBuild.changeSets) {
-        echo "changeLogSet for ${changeLogSet}"
+        echo "Analyzing changeset..."
         for (entry in changeLogSet.items) {
             def affectedFiles = entry.affectedFiles.collect { it.path }
             echo "Affected files: ${affectedFiles.join(', ')}"
-            if (affectedFiles.any { it.endsWith('/pom.xml') }) {
-                // Assuming your microservices are structured in directories with a pom.xml file
-                def microserviceName = entry.path.tokenize('/')[0]
-                echo "Detected change in microservice: ${microserviceName}"
-                changedMicroservices.add(microserviceName)
+
+            affectedFiles.each { file ->
+                def matcher = file =~ /^(.+?)\/src\//
+                if (matcher) {
+                    def microserviceName = matcher[0][1]
+                    echo "Detected change in microservice: ${microserviceName}"
+                    changedMicroservices.add(microserviceName)
+                }
             }
         }
     }
+
+    echo "Changed microservices: ${changedMicroservices}"
     return changedMicroservices.unique()
 }
 
