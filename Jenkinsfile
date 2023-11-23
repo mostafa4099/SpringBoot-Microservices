@@ -14,7 +14,24 @@ pipeline {
             steps {
                 script {
                     // Identify changed microservices
-                    changedMicroservices = findChanges(includePaths: '**/pom.xml')
+                    // changedMicroservices = findChanges(includePaths: '**/pom.xml')
+
+                    // Initialize file system watcher
+                        watcher = new FileWatcher('**/*.pom')
+
+                        // Start monitoring for changes
+                        watcher.start()
+
+                        // Wait for changes to occur
+                        watcher.waitUntilChanges()
+
+                        // Identify microservices with changed POM files
+                        changedMicroservices = []
+                        for (file in watcher.getChangedFiles()) {
+                            microservice = file.getName().split('/')[0]
+                            changedMicroservices.add(microservice)
+                        }
+                      }
 
                     // Build and deploy changed microservices
                     for (microservice in changedMicroservices) {
@@ -33,7 +50,7 @@ pipeline {
                                 sh "docker run -d -p ${getBasePort(microservice)}:${getBasePort(microservice)} localhost:${getBasePort(microservice)}/${microservice}:latest"
                             }
                         }
-                    }
+                    // }
                 }
             }
         }
