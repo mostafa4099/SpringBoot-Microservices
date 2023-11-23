@@ -15,11 +15,13 @@ pipeline {
                 script {
                     // Identify changed microservices
                     def changedMicroservices = findChangedMicroservices()
+                    echo "Building Docker image for ${changedMicroservices}"
 
                     // Build and deploy changed microservices
                     for (microservice in changedMicroservices) {
                         stage(microservice) {
                             steps {
+                                echo "Building Docker image for ${microservice}"
                                 sh "mvn clean install"
                                 def dockerImageTag = "${microservice}:${BUILD_NUMBER}"
 
