@@ -37,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
             Product savedProduct = productRepository.save(product);
 
             log.info("Product {} is created.", product.getId());
-            log.info("Product {} is created.", product.getName());
+//            log.info("Product {} is created.", product.getName());
 
             ProductResponse productResponse = ProductResponse.builder()
                     .id(savedProduct.getId())
