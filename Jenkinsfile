@@ -20,7 +20,7 @@ pipeline {
                     // Build and deploy changed microservices
                     for (microservice in changedMicroservices) {
                         stage(microservice) {
-                            steps {
+                            step {
                                 echo "Building Docker image for ${microservice}"
                                 sh "mvn clean install"
                                 def dockerImageTag = "${microservice}:${BUILD_NUMBER}"
@@ -63,23 +63,23 @@ def findChangedMicroservices() {
     echo "Checking for changed microservices..."
 
     for (changeLogSet in currentBuild.changeSets) {
-        echo "Analyzing changeset..."
+        //echo "Analyzing changeset..."
         for (entry in changeLogSet.items) {
             def affectedFiles = entry.affectedFiles.collect { it.path }
-            echo "Affected files: ${affectedFiles.join(', ')}"
+            //echo "Affected files: ${affectedFiles.join(', ')}"
 
             affectedFiles.each { file ->
                 def matcher = file =~ /^(.+?)\/src\//
                 if (matcher) {
                     def microserviceName = matcher[0][1]
-                    echo "Detected change in microservice: ${microserviceName}"
+                    //echo "Detected change in microservice: ${microserviceName}"
                     changedMicroservices.add(microserviceName)
                 }
             }
         }
     }
 
-    echo "Changed microservices: ${changedMicroservices}"
+    //echo "Changed microservices: ${changedMicroservices}"
     return changedMicroservices.unique()
 }
 
