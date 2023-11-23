@@ -26,7 +26,9 @@ pipeline {
                                 def dockerImageTag = "${microservice}:${BUILD_NUMBER}"
 
                                 // Build Docker image
-                                buildDockerImage(image: dockerImageTag, dockerfile: "${microservice}/Dockerfile")
+                                sh "docker build -t ${dockerImageTag} -f ${microservice}/Dockerfile ."
+                                //buildDockerImage(image: dockerImageTag, dockerfile: "${microservice}/Dockerfile")
+                                //docker.build(dockerImageTag, "-f ${microservice}/Dockerfile .")
 
                                 // Remove previous container if it exists
                                 script {
