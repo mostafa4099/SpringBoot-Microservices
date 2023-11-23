@@ -9,24 +9,26 @@ pipeline {
 
         stage('Build and Deploy') {
             steps {
-                // Identify changed microservices
-                changedMicroservices = findChanges(includePaths: '**/pom.xml')
+                script {
+                    // Identify changed microservices
+                    changedMicroservices = findChanges(includePaths: '**/pom.xml')
 
-                // Build and deploy changed microservices
-                for (microservice in changedMicroservices) {
-                    stage(microservice) {
-                        steps {
-                            // sh "mvn clean package -Dspring.profiles=${microservice}"
-                            sh "mvn clean install"
-                            buildDockerImage(image: microservice, dockerfile: "${microservice}/Dockerfile")
-                            sh "docker tag ${microservice}:latest localhost:${getBasePort(microservice)}/${microservice}:latest"
+                    // Build and deploy changed microservices
+                    for (microservice in changedMicroservices) {
+                        stage(microservice) {
+                            steps {
+                                // sh "mvn clean package -Dspring.profiles=${microservice}"
+                                sh "mvn clean install"
+                                buildDockerImage(image: microservice, dockerfile: "${microservice}/Dockerfile")
+                                sh "docker tag ${microservice}:latest localhost:${getBasePort(microservice)}/${microservice}:latest"
 
-                            // Remove previous image or container for the changed microservice
-                            sh "docker rm -f ${microservice}"
-                            sh "docker rmi ${microservice}:latest"
+                                // Remove previous image or container for the changed microservice
+                                sh "docker rm -f ${microservice}"
+                                sh "docker rmi ${microservice}:latest"
 
-                            // Run Docker container for the changed microservice
-                            sh "docker run -d -p ${getBasePort(microservice)}:${getBasePort(microservice)} localhost:${getBasePort(microservice)}/${microservice}:latest"
+                                // Run Docker container for the changed microservice
+                                sh "docker run -d -p ${getBasePort(microservice)}:${getBasePort(microservice)} localhost:${getBasePort(microservice)}/${microservice}:latest"
+                            }
                         }
                     }
                 }
